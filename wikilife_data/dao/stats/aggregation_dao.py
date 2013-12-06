@@ -53,6 +53,7 @@ class AggregationDAO(BaseDAO):
         cursor = self._collection.find(where).sort("date", ASCENDING).limit(LIMIT)
         return list(cursor)
 
+    '''
     def count_active_users(self, from_date, to_date):
         #Map Reduce instead of group because of sharded collection support
         result = self._collection.map_reduce(map=Code("function(){emit(this.userId, 1);}"),
@@ -78,6 +79,7 @@ class AggregationDAO(BaseDAO):
                                              out="mr_logged_nodes")
 
         return list(result.find()) 
+    '''
 
     """
     def get_numeric_user_life_variable_last_day(self, node_id, metric_id, user_id, from_date, to_date):

@@ -5,7 +5,7 @@ from pymongo import ASCENDING
 from wikilife_data.dao.base_dao import BaseDAO
 
 
-class NodeAggregationDAO(BaseDAO):
+class AggregationNodeDAO(BaseDAO):
     """
     Model
     {
@@ -26,10 +26,10 @@ class NodeAggregationDAO(BaseDAO):
     _collection = None
 
     def _initialize(self):
-        self._collection = self._db.aggr
+        self._collection = self._db.aggr_node
         #TODO single field index included in multiple field index, how mongo manage this ?
+        self._collection.ensure_index("nodeId")
         self._collection.ensure_index("date")
-        self._collection.ensure_index([("nodeId", ASCENDING), ("date", ASCENDING)])
         self._collection.ensure_index([("nodeId", ASCENDING), ("date", ASCENDING)])
         self._collection.ensure_index([("nodeId", ASCENDING), ("date", ASCENDING), ("userId", ASCENDING)], unique=True)
 
@@ -64,6 +64,6 @@ class NodeAggregationDAO(BaseDAO):
 
     def inc_logged_nodes_count(self, node_ids, user_id, date_day, inc):
         for node_id in node_ids:
-            self._collection.update({"nodeId": node_id, "userId": user_id, "date": date_day}, 
-                                    {"$set":{"nodeId": node_id, "userId": user_id, "date": date_day, "count": {"$inc": inc}}}, 
-                                    True, True)
+            self._collection.update(spec={"nodeId": node_id, "userId": user_id, "date": date_day}, 
+                                    document={"$set":{"nodeId": node_id, "userId": user_id, "date": date_day}, "$inc": {"count": inc}}, 
+                                    upsert=True, multi=True)

@@ -21,6 +21,7 @@ from wikilife_data.dao.stats.user_option_last_log_dao import \
 from wikilife_data.dao.user.profile_dao import ProfileDAO
 from wikilife_data.dao.user.user_dao import UserDAO
 from wikilife_data.dao.user.user_token_dao import UserTokenDAO
+from wikilife_data.dao.stats.aggregation_node_dao import AggregationNodeDAO
 
 
 class DAOBuilder(object):
@@ -190,6 +191,9 @@ class DAOBuilder(object):
 
     def build_aggregation_dao(self):
         return AggregationDAO(self._logger, self._db_conn.get_conn_processors())
+
+    def build_aggregation_node_dao(self):
+        return AggregationNodeDAO(self._logger, self._db_conn.get_conn_processors())
 
     """ APPs (OAuth) DB related """
 
