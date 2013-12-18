@@ -10,7 +10,7 @@ TYPE_NUMERIC = "num"
 TYPE_OPTIONS = "txt"
 
 
-class AggregationDAO(BaseDAO):
+class AggregationLastLogDAO(BaseDAO):
     """
     Life Variable (node+metric) Aggregation
 
@@ -19,13 +19,37 @@ class AggregationDAO(BaseDAO):
       nodeId: int,
       metricId: int,
       userId: str,
-      date: ISODate("YYYY-MM-DD"),
+      execUTC: ISODate(""),
       count: int,
       type:     "num" | "txt",
       sum:      float | null ,
       optCount: null  | {opt_key: opt_count, "Green": 4}  
     }
+    
+    
+    
+    
+    
     """
+
+
+    def get_last_log_lv(self, node_id, metric_id, from_date=None, to_date=None):
+        where = {}
+        where["nodeId"] = node_id
+        where["metricId"] = metric_id
+
+        if from_date and to_date:
+            where["date"] = {"$gte": from_date, "$lt": to_date}
+        elif from_date:
+            where["date"] = {"$gte": from_date}
+        elif to_date:
+            where["date"] = {"$lt": to_date}
+
+        result = self._collection.map_reduce(map=Code("function(){emit(this.nodeId, this.count);}"),
+                                             reduce=Code("function(key, values){ return Array.sum(values)}"),
+                                             query=where,
+                                             out="mr_logged_nodes")
+
 
     _collection = None
 

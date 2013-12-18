@@ -343,6 +343,12 @@ class MetaDAO(BaseGraphDAO):
         rel = self._get_rel(node, related_node)
         self._delete_rel_by_id(rel._id)
 
+    def delete_rel_is(self, node_id, related_node_id):
+        params = {}
+        params["node_id"] = node_id
+        params["related_node_id"] = related_node_id
+        self._graph.cypher.execute("START n=node({node_id}), rn=node({related_node_id}) MATCH n-[r?:is]-rn DELETE r;", params)
+
     def _delete_rel_by_id(self, rel_id):
         self._graph.edges.delete(rel_id)
 
