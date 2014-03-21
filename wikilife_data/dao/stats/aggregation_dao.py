@@ -52,7 +52,22 @@ class AggregationDAO(BaseDAO):
         where["date"] = {'$gte' : from_date, '$lt' : to_date}
         cursor = self._collection.find(where).sort("date", ASCENDING).limit(LIMIT)
         return list(cursor)
+    
+    #return values[i][0]/values[i][1]
 
+    def get_life_variable_by_day(self, metric_id, from_date, to_date):
+        where = {}
+        #where["nodeId"] = node_id
+        where["metricId"] = metric_id
+        where["date"] = {'$gte' : from_date, '$lt' : to_date}
+        #reduce=Code("function(key, values){ var total=0; var count=0;for (var i=1; i< values.length; i++){ total+=values[i].sum;count+=values[i].count}; return total/count}"),
+
+        result = self._collection.map_reduce(map=Code("function(){emit(this.date, {sum:this.sum, count:1});}"),
+                                             reduce=Code("function(key, values){ var total=0;for (var i=1; i< values.length; i++){ total+=values[i]['sum']};  if (total>0 && values.length>0){ return total/values.length}else{return 0}}"),
+                                             query=where,
+                                             out="mr_logged_by_day_nodes")
+
+        return list(result.find()) 
     #TODO move to other DAO
     #TODO naming
     def get_option_last_log(self, node_id, metric_id):
