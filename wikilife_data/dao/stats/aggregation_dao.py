@@ -52,8 +52,17 @@ class AggregationDAO(BaseDAO):
         where["date"] = {'$gte' : from_date, '$lt' : to_date}
         cursor = self._collection.find(where).sort("date", ASCENDING).limit(LIMIT)
         return list(cursor)
-    
-    #return values[i][0]/values[i][1]
+
+    def get_times_group_by_user(self, node_id, from_date, to_date):
+        where = {}
+        where["nodeId"] = node_id
+        where["date"] = {'$gte' : from_date, '$lt' : to_date}
+        result = self._collection.map_reduce(map=Code("function(){emit(this.userId,this.count);}"),
+                                             reduce=Code("function(key, values){ function(key, values){ return Array.sum(values)} }"),
+                                             query=where,
+                                             out="mr_logged_by_user_nodes")
+
+        return list(result.find()) 
 
     def get_life_variable_by_day(self, metric_id, from_date, to_date):
         where = {}
