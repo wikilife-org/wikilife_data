@@ -70,9 +70,10 @@ class AggregationDAO(BaseDAO):
         where["metricId"] = metric_id
         where["date"] = {'$gte' : from_date, '$lt' : to_date}
         #reduce=Code("function(key, values){ var total=0; var count=0;for (var i=1; i< values.length; i++){ total+=values[i].sum;count+=values[i].count}; return total/count}"),
+        #reduce=Code("function(key, values){ var total=0; for (var i=1; i< values.length; i++){ total+=values[i]['sum']};  if (total>0 && values.length>0){ return total/values.length}else{return 0}}"),
 
         result = self._collection.map_reduce(map=Code("function(){emit(this.date, {sum:this.sum, count:1});}"),
-                                             reduce=Code("function(key, values){ var total=0;for (var i=1; i< values.length; i++){ total+=values[i]['sum']};  if (total>0 && values.length>0){ return total/values.length}else{return 0}}"),
+                                             reduce=Code("function(key, values){ var total=0; var reducedVal = { entries: 0, sum: 0, avg:0 }; for (var i=1; i< values.length; i++){ total+=values[i]['sum']};  if (total>0 && values.length>0){ reducedVal.sum=total;reducedVal.entries=values.length;reducedVal.avg=total/values.length; return reducedVal}else{return reducedVal}}"),
                                              query=where,
                                              out="mr_logged_by_day_nodes")
 
