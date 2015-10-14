@@ -20,6 +20,13 @@ class TwitterUserDAO(BaseDAO):
         """
         user = self._collection.find_one({TWITTER_ID_HASH_FIELD: twitter_id_hash})
         return user
+    
+    def find_twitter_user_by_id(self, internal_id):
+        """
+        twitter_id_hash: Hash
+        """
+        user = self._collection.find_one({INTERNAL_ID_FIELD: internal_id})
+        return user
 
     def create_twitter_user(self, internal_user_id, twitter_id_hash):
         """
