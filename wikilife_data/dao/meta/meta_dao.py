@@ -146,7 +146,29 @@ class MetaDAO(BaseGraphDAO):
             node = None
 
         return node
+    
+    def find_exact_nodes(self, node_name, skip, limit):
+        """
+        :param name: Node name.
+        :type node: str
 
+        :rtype: tupple
+        """
+        params = {}
+        params["name_regex"] = "(?i).%s." %node_name
+        params["s"] = skip
+        params["l"] = limit
+
+        items_total = self._graph.cypher.table("START n=node:MetaNode('name:*') WHERE n.name=~{name_regex} OR n.other_names=~{name_regex} RETURN count(*) as total;", params)[1][0][0]
+        items  = self._graph.cypher.query     ("START n=node:MetaNode('name:*') WHERE n.name=~{name_regex} OR n.other_names=~{name_regex} RETURN n ORDER BY n.name SKIP {s} LIMIT {l};", params)
+
+        if items:
+            items = list(items)
+        else:
+            items = []
+
+        return list(items), items_total
+    
     def find_nodes(self, node_name, skip, limit):
         """
         :param name: Node name.
