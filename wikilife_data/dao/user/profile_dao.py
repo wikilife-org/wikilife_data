@@ -41,6 +41,9 @@ class ProfileDAO(BaseDAO):
             "items" : self.get_profile_items()
         }
 
+    def get_profiles_with_no_location(self, limit):
+        return self._collection.find({"items.city.value": None, "items.region.value": None, "items.country.value": None,}).limit(limit)
+    
     def get_profile_items(self):
         return {
             "gender": {"nodeId": 271256, "metricId": 271257, "value": None, "updateUTC": None},
