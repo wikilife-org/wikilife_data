@@ -155,7 +155,7 @@ class MetaDAO(BaseGraphDAO):
         :rtype: tupple
         """
         params = {}
-        params["name_regex"] = "(?i).%s." %node_name
+        params["name_regex"] = "%s" %node_name
         params["s"] = skip
         params["l"] = limit
 
